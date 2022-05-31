@@ -1,0 +1,138 @@
+Header (6180 Bytes)
+===================
+
+0x0	Version, 4 bytes
+	typically 0x1
+
+0x4	Number of files, 4 bytes
+
+0x8	Product ID, 4 bytes
+
+0xc	Device ID, 4 bytes
+
+0x10	Year, 2 bytes
+
+0x12	Month, 1 byte
+
+0x13	Day, 1 byte
+
+0x14	(unused, 0x00), 1 byte
+
+0x15	Hour, 1 byte
+
+0x16	Minute, 1 byte
+
+0x17	Second, 1 byte
+
+0x18	Package CRC, 2 bytes
+	CRC-16/XMODEM over everything after header (seems to be unused)
+
+0x1a	Package Flag, 2 bytes
+	describes how Package CRC is calculated, typically 0x2 (seems to be unused)
+
+0x1c	Length, 4 bytes
+	excluding this header
+
+0x20	File descriptors, 128 at 24 bytes each
+	see below for format
+
+0xc20	RSA signature version, 4 bytes
+	signature is only checked if value is 0xFF00A104 or 0xFF00A105
+
+0xc24	RSA signature length, 4 bytes
+        typically 256
+
+0xc28	RSA signature Reserved, 8 bytes
+        seems to be all zeroes
+
+0xc30	RSA signature, 3056 bytes
+
+0x1820	CRC, 4 bytes
+	CRC-16/XMODEM over header (first 6176 bytes)
+
+
+
+File descriptor (24 bytes)
+==========================
+
+0x0	Type, 4 bytes
+	identical to value from file header
+
+0x4	Offset, 4 bytes
+	address of file header
+
+0x8	Length, 4 bytes
+	including file header
+
+0xc	File CRC, 4 bytes
+	identical to value from file header
+
+0x10	Version, 4 bytes
+	identical to value from file header
+
+0x14	Type mask, 4 bytes
+	seems to be 0xFFFFFFFF for Basic Bootware, 0x1 for others
+
+
+
+File header (340 bytes)
+=======================
+
+0x0	Reserved, 4 bytes
+	all zeroes
+
+0x4	Header CRC, 4 bytes
+	CRC-16/XMODEM over file header (last 332 bytes)
+
+0x8	Type, 4 bytes
+	0x04000000: Application (required)
+	0x05000000: Extended BootWare
+	0x05000001: Basic BootWare
+
+0xc	Version, 4 bytes
+	typically 0x1 for application, for BootWare two 2 byte numbers
+
+0x10	Product ID, 4 bytes
+	same as in main header
+
+0x14	Device ID, 4 bytes
+	matches value in main header for application, 0x1 for BootWare
+
+0x18	Unknown length, 4 bytes
+	looks like it is supposed to be the uncompressed file size
+	actual value for 7z-compressed files is on 6 bytes smaller than value at 0x148
+	actual value for uncompressed files is identical to value at 0x148
+	(value seems not to be read)
+
+0x1c	Version offset, 4 bytes
+	offset of version number within file or 0xFFFFFFFF (seems to contain valid value only for BootWare)
+
+0x20	Year, 2 bytes
+
+0x22	Month, 1 byte
+
+0x23	Day, 1 byte
+
+0x24	(unused, 0x00), 1 byte
+
+0x25	Hour, 1 byte
+
+0x26	Minute, 1 byte
+
+0x27	Second, 1 byte
+
+0x28	(all zeroes), 64 bytes
+
+0x68	Description, 224 bytes
+	null-terminated string
+
+0x148	Length, 4 bytes
+	length of data following this header
+
+0x14c	File CRC, 4 bytes
+	CRC-16/XMODEM over file data including compression header
+
+0x150	Compression type, 4 bytes
+	0xFFFFFFFF: uncompressed (used for Basic BootWare)
+	0x00000001: ARJ (seems to be unused)
+	0x00000002: 7z, LZMA only, encoded header unsupported (used for Extended BootWare and application)

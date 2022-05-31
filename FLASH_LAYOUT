@@ -1,0 +1,244 @@
+addr         size         desc
+
+0x0          0x50000      Basic BootWare
+0x60000      0x10000      Bootloader data: network
+0x70000      0x10000      Bootloader data: images
+0x80000      0x10000      Bootloader data: flags
+0x90000      0x40000      Extended BootWare
+
+0x100000     0x50000      Basic BootWare (Backup)
+0x160000     0x10000      Bootloader data: network (Backup)
+0x170000     0x10000      Bootloader data: images (Backup)
+0x180000     0x10000      Bootloader data: flags (Backup)
+0x190000     0x40000      Extended BootWare (Backup)
+
+0x300000     0x1CF0000    Filesystem
+
+0x1FF0000    0x10000      Factory data
+
+
+
+Notes:
+- Extended BootWare is an ELF image, stored including file header from firmware image
+
+
+
+Bootloader data: network (280 bytes)
+====================================
+
+0x0	CRC, 4 bytes
+	CRC-16/XMODEM over network config (following 276 bytes)
+
+0x4	Protocol, 21 bytes
+	null-terminated string
+	valid values: "ftp", "tftp"
+
+0x19	Server file name, 51 bytes
+	null-terminated string
+
+0x4c	Target file name, 51 bytes
+	null-terminated string
+
+0x7f	Server address, 31 bytes
+	null-terminated string
+
+0x9e	Local address, 31 bytes
+	null-terminated string
+
+0xbd	Gateway address, 31 bytes
+	null-terminated string
+
+0xdc	User name, 21 bytes
+	null-terminated string
+
+0xf1	Password, 21 bytes
+	null-terminated string
+
+0x106	Reserved + Padding, 18 bytes
+
+
+
+Bootloader data: images (924 bytes)
+===================================
+
+0x0	CRC, 4 bytes
+	CRC-16/XMODEM over image config (following 920 bytes)
+
+0x4	Main image file name, 128 bytes
+	null-terminated string
+
+0x84	Backup image file name, 128 bytes
+	null-terminated string
+
+0x104	Secure image file name, 128 bytes
+	null-terminated string
+
+0x184	Main config file name, 136 bytes
+	null-terminated string
+
+0x20c	Backup config file name, 136 bytes
+	null-terminated string
+
+0x294	Secure config file name, 136 bytes
+	null-terminated string
+
+0x31c	Reserved, 128 bytes
+
+
+
+Bootloader data: flags (180 bytes)
+==================================
+
+0x0	CRC, 4 bytes
+	CRC-16/XMODEM over flags config (following 176 bytes)
+
+0x4	Default start device, 4 bytes
+	see next option for values
+
+0x8	Start device, 4 bytes
+	0: Flash
+	1: USB
+	2: CF0
+	3: CF1
+	4: NVRAM
+	5: Boot ROM
+	6: Memory
+	7: NAND flash
+	7: SD0
+	99: Memory (this is actually set after booting from RAM)
+
+0xc	Skip config flag, 4 bytes
+	0xffffffff: invalid
+	0x00000059: valid
+
+0x10	Boot flag, 4 bytes
+	0x0: No application
+	0x1: Main application
+	0x2: backup application
+	0x4: Secure application
+	0x8: Memory application
+
+0x14	Reboot reason, 4 bytes
+	0x1: Cold
+	0x2: Warm
+	0x3: Exec
+
+0x18	Application password flag, 4 bytes
+	0xffffffff: invalid
+	0x00000059: valid
+
+0x1c	Basic BootWare exists, 4 bytes
+	0xffffffff: invalid
+	0x00000059: valid
+
+0x20	Extended BootWare exists, 4 bytes
+	0xffffffff: invalid
+	0x00000059: valid
+
+0x24	Basic BootWare (Backup) exists, 4 bytes
+	0xffffffff: invalid
+	0x00000059: valid
+
+0x28	Extended BootWare (Backup) exists, 4 bytes
+	0xffffffff: invalid
+	0x00000059: valid
+
+0x2c	Bootloader password, 32 bytes
+	null-terminated string
+
+0x4c	Offline file, 28 bytes
+	null-terminated string
+
+0x68	RAM test result, 2 bytes
+
+0x6a	RAM test stage, 2 bytes
+
+0x6c	RAM test error address, 4 bytes
+
+0x70	RAM test input data, 4 bytes
+
+0x74	RAM test output data, 4 bytes
+
+0x78	Reserved, 20 bytes
+
+0x8c	Basic BootWare version, 4 bytes
+
+0x90	Extended BootWare version, 4 bytes
+
+0x94	Reserved, 24 bytes
+
+0xac	Security mode, 4 bytes
+	0x59: password recovery disabled
+	0x95: password recovery enabled
+
+0xb0	Default config, 4 bytes
+	0x59: restore default config
+	0x95: don't restore default config
+
+
+
+Factory data (964 bytes)
+========================
+
+0x0	CRC, 2 bytes
+	CRC-16/XMODEM over factory data (following 960 bytes)
+
+0x2	Reserved, 2 bytes
+
+0x4	Magic, 4 bytes
+	0xA548F037 (?)
+
+0x8	Device name, 32 bytes
+	null-terminated string
+	does not match actual device name ("HPE1920" for 1920-16G)
+
+0x28	Device serial number, 64 bytes
+	null-terminated string
+
+0x68	MAC address, 32 bytes
+	binary, only first 6 bytes used
+
+0x88	Production data, 32 bytes
+	null-terminated string, "YYYY-MM-DD"
+	does not match date shown in vendor firmware
+
+0xa8	Vendor name, 32 bytes
+	null-terminated string
+
+0xc8	Serial number, 32 bytes
+	null-terminated string
+	prefix matches serial number on label
+
+0xe8	CLEI code, 32 bytes
+
+0x108	Build info, 8 bytes
+	null-terminated string
+
+0x110	MAC address count, 8 bytes
+	two 4-byte integers
+	on 16+4 port model 1 and 24
+	vendor firmware uses MAC from 0x68 for bridge, ports start at (bridge MAC + 2)
+
+0x118	Device BOM, 16 bytes
+	null-terminated string
+
+0x128	Board serial number, 64 bytes
+	null-terminated string
+
+0x168	Custom code, 8 bytes
+	null-terminated string
+
+0x170	Test tracking number, 64 bytes
+
+0x1b0	E-Label version, 8 bytes
+	two 4-byte unsigned integers
+
+0x1b8	Device description, 256 bytes
+
+0x2b8	Reserved, 252 bytes
+
+0x3b4	Runtime valid, 4 bytes
+
+0x3b8	First use date, 8 bytes
+
+0x3c0	Accumulative runtime, 4 bytes
