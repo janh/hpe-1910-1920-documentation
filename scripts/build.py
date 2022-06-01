@@ -94,7 +94,11 @@ def create_file(path, file_type, product_id, device_id, version, version_offset,
 		with open(path, 'rb') as f:
 			content = f.read()
 
-	length = len(content)
+	length_unpadded = len(content)
+	padding = 8 - length_unpadded % 8 if length_unpadded % 8 != 0 else 0
+	length = length_unpadded + padding
+
+	content += bytearray(padding)
 
 	# File type
 	struct.pack_into('>I', data, 0x8, file_type)
@@ -105,8 +109,8 @@ def create_file(path, file_type, product_id, device_id, version, version_offset,
 	# Product ID and Device ID
 	struct.pack_into('>II', data, 0x10, product_id, device_id)
 
-	# Unknown length
-	struct.pack_into('>I', data, 0x18, length-6 if compressed else length)
+	# Length without padding
+	struct.pack_into('>I', data, 0x18, length_unpadded)
 
 	# Version offset
 	struct.pack_into('>I', data, 0x1c, version_offset)

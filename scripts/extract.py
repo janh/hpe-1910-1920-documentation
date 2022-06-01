@@ -149,6 +149,9 @@ def parse_file(i, desc, img):
 	print("Product ID: 0x{}".format(head[0x10:0x14].hex()))
 	print("Device ID: 0x{}".format(head[0x14:0x18].hex()))
 
+	length_unpadded = get_int(head[0x18:0x1c])
+	print("Length without padding: {}".format(length_unpadded))
+
 	print("Version offset: 0x{}".format(head[0x1c:0x20].hex()))
 
 	print("Date: {}".format(get_date(head[0x20:0x28])))
@@ -158,6 +161,11 @@ def parse_file(i, desc, img):
 	length = get_int(head[0x148:0x14c])
 	print("Length: {}".format(length))
 	if length != desc_length - 340:
+		print("ERROR: inconsistent file length!", file=sys.stderr)
+
+	expected_length = length_unpadded - length_unpadded % 8 + 8 if length_unpadded % 8 != 0 else length_unpadded
+	print("Padding size: {}".format(length-length_unpadded))
+	if expected_length != length:
 		print("ERROR: inconsistent file length!", file=sys.stderr)
 
 	file = img[file_offset:file_offset+length]
@@ -171,9 +179,6 @@ def parse_file(i, desc, img):
 
 	comp = get_compression_type(head[0x150:0x154])
 	print("Compression: {}".format(comp[0]))
-	expected_length2 = length-6 if comp[1] == '7z' else length
-	if expected_length2 != get_int(head[0x18:0x1c]):
-		print("ERROR: inconsistent file length!", file=sys.stderr)
 
 	filepath = os.path.join(os.path.dirname(FILENAME), os.path.basename(FILENAME) + "_extracted")
 	filename = os.path.join(filepath, "{}_{}_{}".format(i, file_offset, file_type_raw.hex()))

@@ -98,10 +98,8 @@ File header (340 bytes)
 0x14	Device ID, 4 bytes
 	matches value in main header for application, 0x1 for BootWare
 
-0x18	Unknown length, 4 bytes
-	looks like it is supposed to be the uncompressed file size
-	actual value for 7z-compressed files is on 6 bytes smaller than value at 0x148
-	actual value for uncompressed files is identical to value at 0x148
+0x18	Length without padding, 4 bytes
+	files seem to be padded with zero-bytes to a multiple of 8 bytes
 	(value seems not to be read)
 
 0x1c	Version offset, 4 bytes
