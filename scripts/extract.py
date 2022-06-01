@@ -153,7 +153,7 @@ def parse_file(i, desc, img):
 
 	print("Date: {}".format(get_date(head[0x20:0x28])))
 
-	print("Description: {}".format(head[0x68:0x148].decode('ascii')))
+	print("Description: {}".format(head[0x68:0x148].decode('ascii').rstrip('\x00')))
 
 	length = get_int(head[0x148:0x14c])
 	print("Length: {}".format(length))
