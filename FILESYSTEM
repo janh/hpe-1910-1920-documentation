@@ -1,0 +1,91 @@
+General parameters (fixed):
+
+Erase block size: 0x10000
+Filesystem size: 0x1cf0000
+
+Filesystem block size: 0x400
+Filesystem blocks per erase block: 64 (first is used for file allocation table, rest is used for data)
+
+
+
+File allocation table
+=====================
+
+The first filesystem block within each erase block is used for part of the file allocation table.
+It contains an entry for every of the following 63 data blocks in the erase block.
+Each 8-byte entry has the following format:
+
+
+0x0	Flags, 1 byte
+	0x3f: valid (has data)
+	0xff: invalid (unused block)
+
+0x1	Previous block index, 3 bytes
+	0xffffff: invalid (first block of file data or directory entries)
+
+0x4	Reserved, 1 byte
+	0xff
+
+0x5	Next block index, 3 bytes
+	0xffffff: invalid (last block of file data or directory entries)
+
+
+Calculate flash offset of data block from block index:
+0x10000 * (i // 63) + 0x400 * (1 + (i % 63))
+
+Calculate flash offset of file allocation table entry from block index:
+0x10000 * (i // 63) + 0x8 * (i % 63)
+
+
+The first 4 bytes of the filesystem contain the format flag.
+Value: 0x10000400 (bits 31-12: erase block size, bits 11-0: block size)
+(This would otherwise contain the first 4 bytes of the file allocation table entry for block index 0. This block is known to always be valid and contain the root directory entry.)
+
+
+The filesystem data block at index 0 (i.e. at flash offset 0x400) contains the root directory, i.e. a single file entry with exactly the following values:
+flags = 0x3f
+parent block index = 0
+first data block index = 1
+
+
+
+File entry (128 bytes)
+======================
+
+By default, values are all-ones (i.e. flash block has been erased but not yet programmed).
+This also means that flags are inverted (i.e. a flag is set if its bit is zero).
+
+
+0x0	Flags, 1 byte
+	free: 0x80 (set at start of entry creation)
+	valid: 0x40 (set after creation of entry is finished)
+	invalid: 0x20 (set when an entry is deleted)
+	hide: 0x10
+	directory: 0x02
+	read-only: 0x01
+	(for a regular file, the value is 0x3f)
+
+0x6	Year, 2 bytes
+
+0x8	Month, 1 byte
+
+0x9	Day, 1 byte
+
+0xa	Hour, 1 byte
+
+0xb	Minute, 1 byte
+
+0xc	Second, 1 byte
+
+0x10	File length, 4 bytes
+
+0x14	Parent block index, 4 bytes
+
+0x18	Parent entry index within block, 2 bytes
+
+0x1c	First data block index, 4 bytes
+	for a file, the referenced block contains the start of the file data
+	for a directory, the referenced block contains the first file entries in the directory
+
+0x20	Name, 96 bytes
+	null-terminated string
