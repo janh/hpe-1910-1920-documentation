@@ -79,8 +79,8 @@ def get_compression_type(data):
 		ext = '7z'
 
 	if desc:
-		return "0x{} ({})".format(val, desc), ext
-	return "0x{}".format(val), ext
+		return "0x{} ({})".format(val, desc), ext, True
+	return "0x{}".format(val), ext, False
 
 
 def parse_header(img):
@@ -100,7 +100,16 @@ def parse_header(img):
 	if not package_crc[1]:
 		print("ERROR: invalid package CRC!", file=sys.stderr)
 
-	print("Length: {}".format(get_int(img[0x1c:0x20])))
+	if get_int(img[0x1a:0x1c]) != 2:
+		print("ERROR: invalid package flag!", file=sys.stderr)
+
+	length = get_int(img[0x1c:0x20])
+	print("Length: {}".format(length))
+	length_actual = len(img)-0x1824
+	if length > length_actual:
+		print("ERROR: wrong length!", file=sys.stderr)
+	elif length < length_actual:
+		print("WARNING: extra data after file end!", file=sys.stderr)
 
 	header_crc = check_crc(get_int(img[0x1820:0x1824]), img[:0x1820])
 	print("Header CRC: {}".format(header_crc[0]))
@@ -179,6 +188,8 @@ def parse_file(i, desc, img):
 
 	comp = get_compression_type(head[0x150:0x154])
 	print("Compression: {}".format(comp[0]))
+	if not comp[2]:
+		print("ERROR: invalid compression type!", file=sys.stderr)
 
 	filepath = os.path.join(os.path.dirname(FILENAME), os.path.basename(FILENAME) + "_extracted")
 	filename = os.path.join(filepath, "{}_{}_{}".format(i, file_offset, file_type_raw.hex()))
