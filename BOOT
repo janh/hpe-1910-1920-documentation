@@ -4,7 +4,9 @@
   configuring a non-blinking mode in LED_GLB_CTRL results in a reboot about a second later
   (the bootloader sets the value 1 and it implements rebooting by disabling the system LED and looping until reset)
 
-- Actual Power LED is controlled via bits 0-4 of LED_SW_CTRL (a00c), 0xd to turn it off, 0x8 to turn it on
+- On RTL838x the actual power LED is controlled via bits 0-4 of LED_SW_CTRL (a00c), 0xd to turn it off, 0x8 to turn it on
+
+- On RTL839x the actual power LED is controlled via bit 17 of 0xb800350c, 0 to turn it off, 1 to turn it on
 
 - Booting image from RAM will update the Basic and/or Extended BootWare on flash if the image contains a newer version!
   (if it isn't set already it also writes a flag to flash that last boot was from RAM)
