@@ -133,4 +133,4 @@ File header (340 bytes)
 0x150	Compression type, 4 bytes
 	0xFFFFFFFF: uncompressed (used for Basic BootWare)
 	0x00000001: ARJ (seems to be unused)
-	0x00000002: 7z, LZMA only, encoded header unsupported (used for Extended BootWare and application)
+	0x00000002: 7z with LZMA compression (used for Extended BootWare and application)
