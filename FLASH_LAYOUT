@@ -190,55 +190,68 @@ Factory data (964 bytes)
 
 0x8	Device name, 32 bytes
 	null-terminated string
-	does not match actual device name ("HPE1920" for 1920-16G)
+	does not match actual device name ("HPE1910" for 1920-16G)
 
 0x28	Device serial number, 64 bytes
 	null-terminated string
+	does not match actual serial number (seems to be always DPPMWWB123456)
 
 0x68	MAC address, 32 bytes
 	binary, only first 6 bytes used
 
 0x88	Production data, 32 bytes
 	null-terminated string, "YYYY-MM-DD"
-	does not match date shown in vendor firmware
+	does not match date shown in vendor firmware (seems to be always 2012-12-12)
 
 0xa8	Vendor name, 32 bytes
 	null-terminated string
 
 0xc8	Serial number, 32 bytes
 	null-terminated string
-	prefix matches serial number on label
+	matches serial number on label (plus some default data after null byte)
 
 0xe8	CLEI code, 32 bytes
+	empty
 
 0x108	Build info, 8 bytes
 	null-terminated string
+	seems to always contain "00.00.00"
 
 0x110	MAC address count, 8 bytes
 	two 4-byte integers
 	on 16+4 port model 1 and 24
+	on 8+2 port model 1 and 14
 	vendor firmware uses MAC from 0x68 for bridge, ports start at (bridge MAC + 2)
 
 0x118	Device BOM, 16 bytes
 	null-terminated string
+	seems to always contain "02350100"
 
 0x128	Board serial number, 64 bytes
 	null-terminated string
+	seems to always contain "036286A054000032"
 
 0x168	Custom code, 8 bytes
 	null-terminated string
+	seems to always contain "0x12"
 
 0x170	Test tracking number, 64 bytes
+	empty
 
 0x1b0	E-Label version, 8 bytes
 	two 4-byte unsigned integers
+	seems to be always 2 and 0
 
 0x1b8	Device description, 256 bytes
 
 0x2b8	Reserved, 252 bytes
+	empty apart from 0x3a4 which contains 0xea
 
 0x3b4	Runtime valid, 4 bytes
+	empty
 
 0x3b8	First use date, 8 bytes
+	empty
 
 0x3c0	Accumulative runtime, 4 bytes
+	empty
