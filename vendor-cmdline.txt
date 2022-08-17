@@ -1,0 +1,43 @@
+The default username on vendor firmware is admin and there is no password.
+
+
+
+Enabling full command line interface:
+=====================================
+
+This command unlocks the full command line interface for the current session:
+
+	_cmdline-mode on
+
+Confirm by typing Y, and enter the password "Jinhua1920unauthorized".
+
+
+
+Unlocking hidden commands:
+==========================
+
+Run the following commands to enter system view and then unlock hidden commands:
+
+	system-view
+	_hidecmd
+
+
+
+A few examples of the commands this unlocks (type ? to discover more commands):
+
+
+- Realtek diagnostic interface:
+
+	debug diag
+
+
+- Read/write memory (including registers):
+
+	display memory-dump ADDRESS LENGTH
+	memset ADDRESS LENGTH VALUE
+
+  with the following parameters:
+
+  ADDRESS:  memory address in hexadecimal notation
+  LENGTH:   length in bytes (for memset only 1/2/4)
+  VALUE:    value in hexadecimal notation
